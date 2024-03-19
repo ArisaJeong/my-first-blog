@@ -1,0 +1,64 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    {% for post in posts %}
+        <div class="post">
+            <p class="date">created: {{ post.created_date|date:'d-m-Y' }}</p>
+            <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
+            <p>{{ post.text|truncatechars:200 }}</p>
+            {% if post.image  %}
+            <img class="image" src="{{ post.image.url }}"/>
+        {% endif %}
+        {% if post.video %}
+            <div class="iframe-container">
+                <div id="player"></div>
+            </div>
+
+            <script src="http://www.youtube.com/iframe_api"></script>
+
+            <script>
+
+              var player;
+
+              function onYouTubeIframeAPIReady(){
+
+                player = new YT.Player('player',{
+
+                  width:'640', height:'390',
+
+                  videoId:videoid,
+
+                  playerVars:{'autoplay':1,'playsinline':1},
+
+                  events:{ 'onReady':onPlayerReady }
+
+                });
+
+              }
+
+              function onPlayerReady(e){
+
+                e.target.mute();
+
+                e.target.playVideo();
+
+              }
+
+
+            </script>
+                {# youtube url from id #}
+
+                <script>
+                url = "{{ post.video }}";
+                videoid=youtube_parser(url);
+
+            function youtube_parser(url){
+                var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+                var match = url.match(regExp);
+                return (match&&match[7].length==11)? match[7] : false;
+            }
+            </script>
+        {% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}
